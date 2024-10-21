@@ -10,86 +10,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Bootstrap Example</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-<link rel="stylesheet"
-	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" type="text/css" href="tcStyle.css">
-<style type="text/css">
-.ip-seach::placeholder {
-	font-size: 10px;
-}
-</style>
+<title>Trang chủ</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+   	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+   	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
 	<!--  HEADER -->
-	<nav class="navbar navbar-inverse">
-		<div class="container-fluid">
-			<div class="navbar-header">
-				<a class="navbar-brand" href="#">WebSiteName</a>
-			</div>
-			<ul class="nav navbar-nav">
-				<li class="active"><a href="MayTinh.jsp">May Tinh</a></li>
-				<li class="dropdown"><a class="dropdown-toggle"
-					data-toggle="dropdown" href="#">Page 1 <span class="caret"></span></a>
-					<ul class="dropdown-menu">
-						<li><a href="#">Page 1-1</a></li>
-						<li><a href="#">Page 1-2</a></li>
-						<li><a href="#">Page 1-3</a></li>
-					</ul></li>
-				<li><a href="DatHang.jsp">Xem hàng</a></li>
-			</ul>
-			<ul class="nav navbar-nav navbar-right">
-				<%
-				if (session.getAttribute("dn") != null) {
-				%>
-				<li><a href=""><span class="glyphicon glyphicon-user"></span>
-						xin chao <%=session.getAttribute("dn")%></a></li>
-				<%
-				} else {
-				%>
-				<li type="button" data-toggle="modal" data-target="#myModal"><a><span
-						class="glyphicon glyphicon-user"></span> Login</a></li>
-				<%
-				}
-				%>
-				<li><a href="logout.jsp"><span
-						class="glyphicon glyphicon-log-in"></span> logout</a></li>
-			</ul>
-		</div>
-	</nav>
-
-
+	<%@ include file="Layouts/navBar.jsp" %>
 	<!-- CONTAINER -->
-
-
-	<div class="container">
-	
+	<div class="container">	
 	<!-- Trả sách về 1 session -->
-	<%String datmua = request.getParameter("datmua");
-	session.setAttribute("datmua",null );
+	<%String datmua = request.getParameter("datmua");// đặt mua là 1 cái mã sách
+	session.setAttribute("datmua",null );	
 	if(datmua!=null){
 		SachBo sbo = new SachBo();
-		ArrayList<Sach> ds = sbo.getSach();
+		ArrayList<Sach> ds = sbo.getSach();//ds là tất cả các sách
 		ArrayList<Sach> temp = new ArrayList<Sach>();
 		int n = ds.size();
 		for(int i = 0 ; i < n ; i++){
 			if(datmua.equals(ds.get(i).getMaSach())) {
 				CgioHang gh = new CgioHang();
-				gh.themHang(ds.get(i).getTenSach(), 1, ds.get(i).getGia());
+				Sach sach = new Sach(ds.get(i).getMaSach(),ds.get(i).getTenSach(),ds.get(i).getTacGia(),ds.get(i).getSoLuong(),ds.get(i).getGia(),ds.get(i).getAnh(),ds.get(i).getMaLoai());
+				gh.themHang(sach,1);
 				session.setAttribute("datmua", gh);
 				response.sendRedirect("DatHang.jsp");
 			}
 		}
 	}
 	%>
-	
-	
-	
 	
 	<!--TRẢ VỀ DANH SÁCH CÁC SÁCH KHI TÌM KIẾM -->
 	<%String searchsach=""; 
@@ -101,47 +52,27 @@
 	listSearch = sach.Tim(searchsach);
 	if(listSearch!=null && searchsach!=""){ %>
 		<div class="row">
-			<div class="col-sm-2">
-				<%
-				LoaiBo lBo = new LoaiBo();
-				for (Loai l : lBo.getLoai()) {
-				%>
-				<a href="tc.jsp?ml=<%=l.getMaLoai()%>"><%=l.getTenLoai()%>
-					<hr> </a>
-				<%
-				}
-				%>
-			</div>
+			<!--HIỂN THỊ SANH SÁCH LOẠI SÁCH KHI TÌM KIẾM  -->
+			<%@ include file="Layouts/SelectLoaiSach.jsp" %>
+			<!-- HIỂN THỊ CÁC SÁCH ĐÃ TÌM KIẾM -->
 			<div class="col-sm-8">
 				<%
 				int n = listSearch.size();
 				for (int i = 0; i < n; i++) {
 				%>
-				<form action="tc.jsp" method="get">
-					<div class="row">
+				<h3 class="text-center">Danh sách Sách tìm được</h3>
+				<hr>
+				<div class="row">
 					<div class="col-sm-4">
-						<img alt="" src="<%=listSearch.get(i).getAnh()%>">
-						<hr>
-						<%=listSearch.get(i).getTenSach()%>
-						<hr>
-						<button type="submit" name="datmua" value="<%=listSearch.get(i).getMaSach()%>"><img src="https://minhkhai.com.vn/store/images/buynow.jpg"><%=listSearch.get(i).getGia()%></button>
+						<%@ include file="Layouts/Cart.jsp" %>
 					</div>
-					</div>
-				</form>
 					<%
 					i++;
 					if (i < n) {
 					%>
-					<form action="tc.jsp">
 					<div class="col-sm-4">
-						<img alt="" src="<%=listSearch.get(i).getAnh()%>">
-						<hr>
-						<%=listSearch.get(i).getTenSach()%>
-						<hr>
-						<button type="submit" name="datmua" value="<%=listSearch.get(i).getMaSach()%>"><img src="https://minhkhai.com.vn/store/images/buynow.jpg"><%=listSearch.get(i).getGia()%></button>
-						<hr>
+						<%@ include file="Layouts/Cart.jsp" %>
 					</div>
-					</form>
 					<%
 					}
 					%>
@@ -149,58 +80,34 @@
 					i++;
 					if (i < n) {
 					%>
-					<form action="tc.jsp">
 					<div class="col-sm-4">
-						<img alt="" src="<%=listSearch.get(i).getAnh()%>">
-						<hr>
-						<%=listSearch.get(i).getTenSach()%>
-						<hr>
-						<button type="submit" name="datmua" value="<%=listSearch.get(i).getMaSach()%>"><img src="https://minhkhai.com.vn/store/images/buynow.jpg"><%=listSearch.get(i).getGia()%></button>
-						<hr>
+						<%@ include file="Layouts/Cart.jsp" %>
 					</div>
-					</form>
 					<%
-					}
-					%>
-
-				<%
-				}
-				%>
-				</div>
+					}%>
+					
+			</div>
+				
+		<%}%>	
+		</div>
 				
 				<!-- TÌM KIẾM SÁCH -->
-			<form action="tc.jsp">
-				<div class="input-group col-sm-2 ">
-				<input type="text" name="search-sach" class="form-control ip-seach"
-					placeholder="nhập tên sách, tác giả...">
-				<div class="input-group-btn">
-					<button type="submit" class=" btn btn-info">
-						<i class="fa fa-search"></i>
-					</button>
-				</div>
-			</div>
-			</form>
-		</div>
-	<%}else{ %>
-		<div class="row">
-			<div class="col-sm-2">
-				<%
-				LoaiBo lBo = new LoaiBo();
-				for (Loai l : lBo.getLoai()) {
-				%>
-				<a href="tc.jsp?ml=<%=l.getMaLoai()%>"><%=l.getTenLoai()%>
-					<hr> </a>
-				<%
-				}
-				%>
-			</div>
+			<%@ include file="Layouts/Footer.jsp" %>
 
+	</div>
+	<%} // HIỂN THỊ TẤT CẢ CÁC CART DANH SÁCH
+	else{ %>
+		<div class="row">
+			<!--HIỂN THỊ LOẠI SÁCH  -->
+			<%@ include file="Layouts/SelectLoaiSach.jsp" %>
 			<!-- CHỌN MÃ LOẠI HIỂN THỊ SÁCH -->
 			<%
 			String ml = request.getParameter("ml");
 			if (ml != null) {
 			%>
 			<div class="col-sm-8">
+				<h3 class="text-center">Các Sách có mã loại: <%=ml %></h3>
+				<hr>
 				<%
 				SachBo sbo = new SachBo();
 				ArrayList<Sach> ds = sbo.getSach();
@@ -210,56 +117,37 @@
 					if (ml.equals(ds.get(i).getMaLoai())) {
 						temp.add(ds.get(i));
 					}
-				}
-				int x = temp.size();
+				}%>
+				<%int x = temp.size();
 				for (int i = 0; i < x; i++) {
 				%>
-				<form action="tc.jsp" method="get">
-					<div class="row">
+
+				<div class="row">
 					<div class="col-sm-4">
-						<img alt="" src="<%=temp.get(i).getAnh()%>">
-						<hr>
-						<%=temp.get(i).getTenSach()%>
-						<hr>
-						<button type="submit" name="datmua" value="<%=temp.get(i).getMaSach()%>"><img src="https://minhkhai.com.vn/store/images/buynow.jpg"><%=temp.get(i).getGia()%></button>
+						<%@ include file="Layouts/CardChonLoai.jsp" %>
 					</div>
-				</form>
 					<%
 					i++;
 					if (i < x) {
-					%>
-					<form action="tc.jsp">
-					<div class="col-sm-4">
-						<img alt="" src="<%=temp.get(i).getAnh()%>">
-						<hr>
-						<%=temp.get(i).getTenSach()%>
-						<hr>
-						<button type="submit" name="datmua" value="<%=temp.get(i).getMaSach()%>"><img src="https://minhkhai.com.vn/store/images/buynow.jpg"><%=temp.get(i).getGia()%></button>
-						<hr>
-					</div>
-					</form>
-					<%
-					}
-					%>
-					<%
-					i++;
-					if (i < x) {
-					%>
-					<form action="tc.jsp">
-					<div class="col-sm-4">
-						<img alt="" src="<%=temp.get(i).getAnh()%>">
-						<hr>
-						<%=temp.get(i).getTenSach()%>
-						<hr>
-						<button type="submit" name="datmua" value="<%=temp.get(i).getMaSach()%>"><img src="https://minhkhai.com.vn/store/images/buynow.jpg"><%=temp.get(i).getGia()%></button>
-						<hr>
-					</div>
-						</div>
-					</form>
-					<%
-					}
 					%>
 
+					<div class="col-sm-4">
+						<%@ include file="Layouts/CardChonLoai.jsp" %>
+					</div>
+					<%
+					}
+					%>
+					<%
+					i++;
+					if (i < x) {
+					%>
+					<div class="col-sm-4">
+						<%@ include file="Layouts/CardChonLoai.jsp" %>
+					</div>
+					<%
+					}
+					%>
+			</div>
 				<%
 				}
 				%>
@@ -269,6 +157,8 @@
 			} else {
 			%>
 			<div class="col-sm-8">
+				<h3 class="text-center">Danh sách các Sách</h3>
+				<hr>
 				<%
 				SachBo sbo = new SachBo();
 				ArrayList<Sach> ds = sbo.getSach();
@@ -277,30 +167,16 @@
 				%>
 				
 				<div class="row">
-					<form action="tc.jsp" method="get">
 					<div class="col-sm-4">
-						<img alt="" src="<%=ds.get(i).getAnh()%>">
-						<hr>
-						<%=ds.get(i).getTenSach()%>
-						<hr>
-						<button type="submit" name="datmua" value="<%=ds.get(i).getMaSach()%>"><img src="https://minhkhai.com.vn/store/images/buynow.jpg"><%=ds.get(i).getGia()%></button>
-						<hr>
+						<%@ include file="Layouts/Cart.jsp" %>
 					</div>
-					</form>
 					<%
 					i++;
 					if (i < n) {
 					%>
-					<form action="tc.jsp" method="get">
 					<div class="col-sm-4">
-						<img alt="" src="<%=ds.get(i).getAnh()%>">
-						<hr>
-						<%=ds.get(i).getTenSach()%>
-						<hr>
-						<button type="submit" name="datmua" value="<%=ds.get(i).getMaSach()%>"><img src="https://minhkhai.com.vn/store/images/buynow.jpg"><%=ds.get(i).getGia()%></button>
-						<hr>
+						<%@ include file="Layouts/Cart.jsp" %>
 					</div>
-					</form>
 					<%
 					}
 					%>
@@ -308,110 +184,29 @@
 					i++;
 					if (i < n) {
 					%>
-					<form action="tc.jsp" method="get">
 					<div class="col-sm-4">
-						<img alt="" src="<%=ds.get(i).getAnh()%>">
-						<hr>
-						<%=ds.get(i).getTenSach()%>
-						<hr>
-						<button type="submit" name="datmua" value="<%=ds.get(i).getMaSach()%>"><img src="https://minhkhai.com.vn/store/images/buynow.jpg"><%=ds.get(i).getGia()%></button>
-						<hr>
+						<%@ include file="Layouts/Cart.jsp" %>
 					</div>
-							</div>
-					</form>
 					<%
 					}
 					%>
-
+				</div>
 				<%
 				}
 				%>
+
 			</div>
 			<%
 			}
 			%>
-			
 			<!-- TÌM KIẾM SÁCH -->
-			<form action="tc.jsp">
-				<div class="input-group col-sm-2 ">
-				<input type="text" name="search-sach" value="" class="form-control ip-seach"
-					placeholder="nhập tên sách, tác giả...">
-				<div class="input-group-btn">
-					<button type="submit" class=" btn btn-info">
-						<i class="fa fa-search"></i>
-					</button>
-				</div>
-			</div>
-			</form>
-			
-			
+			<%@ include file="Layouts/Footer.jsp" %>
 		</div>
 		<%} %>
-	</div>
-
+</div>
 
 	<!--MODAL FORM ĐĂNG NHẬP  -->
-	<div class="modal fade" id="myModal" role="dialog">
-		<div class="modal-dialog modal-style">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">&times;</button>
-				</div>
-				<div class="modal-body">
-					<div class="slider mx-auto">
-						<form style="background-color: white;"
-							class="from-slider mx-auto border border-info-subtle border-5"
-							action="FrmDangNhap.jsp" method="get">
-							<%
-							String tb = null;
-							String tendn = "";
-							String mk = "";
-							tendn = request.getParameter("txtTenDn");
-							mk = request.getParameter("txtMk");
-							if (tendn == null) {
-								tendn = "";
-							}
-							if (mk == null) {
-								mk = "";
-							}
-							if (tendn.equals("abc") && mk.equals("123")) {
-								session.setAttribute("dn", tendn);
-								response.sendRedirect("tc.jsp");
-							} else {
-								tb = "dang nhap sai";
-							}
-							%>
-							<img class="logo-img" alt=""
-								src="https://student.husc.edu.vn/Themes/Login/images/logo-small.png">
-							<h1 class="mb-2 pt-4" style="color: #25258e; padding-left: 20px;">SINH
-								VIÊN:</h1>
-							<span
-								style="display: flex; margin-left: 20px; margin-bottom: 5px; font-weight: bold;">Mã
-								sinh viên</span> <input
-								class="tendn mb-2 border border-light-subtle border-3"
-								style="border-radius: 5px; text-indent: 10px; width: 270px; display: flex; position: relative; left: 20px; height: 40px"
-								type="text" name="txtTenDn" placeholder="Tên đăng nhập">
-							<span
-								style="display: flex; margin-left: 20px; margin-bottom: 5px; font-weight: bold;">Mật
-								khẩu:</span> <input class="mk border border-light-subtle border-3"
-								style="border-radius: 5px; width: 270px; position: relative; text-indent: 10px; left: 20px; height: 40px"
-								type="text" name="txtMk" placeholder="Mật Khẩu">
-							<button class="btn btn-primary active" type="submit"
-								name="dangnhap"
-								style="border-radius: 5px; margin-left: 20px; margin-top: 25px; width: 270px; height: 40px;">Đăng
-								nhập</button>
-						</form>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<script
-		src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-	<script
-		src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
